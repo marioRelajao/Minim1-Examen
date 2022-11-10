@@ -30,7 +30,7 @@ public class GameEngineImpl implements GameEngine{
     @Override
     public User addUserGame(String idUser, String idGame) {
         logger.info("Trying to add User " + idUser + " to game " + idGame);
-        if(getUserbyId(idUser)!=null && getGamebyId(idGame)!=null){ //Si es != de null implica que he encontrado un user/game
+        if(getUserbyId(idUser)!=null || getGamebyId(idGame)!=null){ //Si es != de null implica que he encontrado un user/game
             User u = getUserbyId(idUser);
             Game g = getGamebyId(idGame);
             int res = u.addGame(g);
@@ -74,8 +74,35 @@ public class GameEngineImpl implements GameEngine{
         return null;
     }
 
+    public String getlvlGame(String idGame){
+        for(Map.Entry<String,User> entry : this.users.entrySet()){
+            if(entry.getValue().getGamesPlayed().contains(getGamebyId(idGame))){
+                return getGamebyId(idGame).getId();
+            }
+        }
+        return null;
+    }
+
+    public int sizeGamesUser(User u){
+        int ret = u.getGamesPlayed().size();
+        logger.info("User "+u.getName()+ " has " +ret+ " games");
+        return ret;
+    }
     @Override
     public String levelUser(String idUser) {
+        User u = getUserbyId(idUser);
+        logger.info("Looking for level of user "+ idUser);
+        if(getUserbyId(idUser)==null || sizeGamesUser(getUserbyId(idUser))==0){ //o no existe o no tiene games
+            logger.info("Either user/game doesnt exist");
+            return null;
+        }
+        for(Map.Entry<String,User> entry : this.users.entrySet()){
+            if(entry.getValue().equals(u)){
+
+                return null;
+            }
+        }
+        logger.info("Here's the lvl bro");
         return null;
     }
 

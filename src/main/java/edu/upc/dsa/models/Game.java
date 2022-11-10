@@ -8,11 +8,12 @@ public class Game {
     String id;
     String descr;
     List<Level> levels; //Llista de nivells
-
+    int actualLvl;
     public Game(){};
 
     public Game(String id, String descr, int nLvls) {
         this.id = id;
+        this.actualLvl = 1;
         this.descr = descr;
         this.levels = fillListLevels (nLvls);
     }
