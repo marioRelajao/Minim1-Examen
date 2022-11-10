@@ -7,6 +7,8 @@ import org.apache.log4j.Logger;
 
 import java.util.*;
 
+import static java.util.stream.Collectors.toList;
+
 public class GameEngineImpl implements GameEngine{
     private static GameEngine instance;
 
@@ -55,6 +57,18 @@ public class GameEngineImpl implements GameEngine{
         }
         logger.info("Not found :c");
         return null;
+    }
+
+    @Override
+    public int sizeUsers() {
+        int ret = this.users.size();
+        return ret;
+    }
+
+    @Override
+    public int sizeGames() {
+        int ret = this.games.size();
+        return ret;
     }
 
     public Game getGamebyId(String idGame) {
@@ -115,4 +129,29 @@ public class GameEngineImpl implements GameEngine{
     public String nextLevel(String idUser, int points, String date) {
         return null;
     }
+
+    @Override
+    public Game addGame(Game g) {
+        logger.info("trying to add game to list");
+        if(getGamebyId(g.getId())==null){ //no game, lo añado
+            return g;
+        }
+        logger.info("Game not added");
+        return null;
+    }
+    @Override
+    public User addUser(User u) {
+        logger.info("trying to add user to list");
+        if(getUserbyId(u.getId())==null){ //no user, lo añado
+            return u;
+        }
+        logger.info("User not added");
+        return null;
+    }
+    @Override
+    public List<User> getAllUsers() {
+        List<User> list = this.users.values().stream().collect(toList());
+        return list;
+    }
+
 }
