@@ -173,12 +173,6 @@ public class GameService {
     @Path("/player/{id}/matches")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getMatchesUser(@PathParam("id") String id) {
-        try{
-            List<Partida> partidas = this.manager.getPartidasPlayer(id);
-            GenericEntity<List<Partida>> entity = new GenericEntity<List<Partida>>(partidas){};
-            return Response.status(200).entity(entity).build();
-        } catch (PlayerDoesNotExistException e) {
-            return Response.status(404).build();
-        }
+
     }
 }
