@@ -1,55 +1,41 @@
 package edu.upc.dsa.models;
 
-import java.util.ArrayList;
-import java.util.List;
-import edu.upc.dsa.models.Level;
-
 public class Game {
-    String id;
-    String descr;
-    List<Level> levels; //Llista de nivells
-    int actualLvl;
-    public Game(){};
+    String idGame;
+    String desc;
+    int numLvl;
 
-    public Game(String id, String descr, int nLvls) {
-        this.id = id;
-        this.actualLvl = 1;
-        this.descr = descr;
-        this.levels = fillListLevels (nLvls);
+    public Game (){};
+
+    public Game(String idGame, String desc, int numLvl) {
+        this.idGame = idGame;
+        this.desc = desc;
+        this.numLvl = numLvl;
     }
 
-    private List<Level> fillListLevels(int nLvls) {
-        List<Level> llistaRetornar = new ArrayList<>();
-        for(int i = 0; i<nLvls;i++){
-            Level l = new Level("Level"+i+1,"dd-mm-aa");
-            llistaRetornar.add(l);
-        }
-        return llistaRetornar;
+    //Getters y setters
+
+    public String getIdGame() {
+        return idGame;
     }
 
-    //GETTERS SETTERS
-
-    public String getId() {
-        return id;
+    public void setIdGame(String idGame) {
+        this.idGame = idGame;
     }
 
-    public void setId(String id) {
-        this.id = id;
+    public String getDesc() {
+        return desc;
     }
 
-    public String getDescr() {
-        return descr;
+    public void setDesc(String desc) {
+        this.desc = desc;
     }
 
-    public void setDescr(String descr) {
-        this.descr = descr;
+    public int getNumLvl() {
+        return numLvl;
     }
 
-    public List<Level> getLevels() {
-        return levels;
-    }
-
-    public void setLevels(List<Level> levels) {
-        this.levels = levels;
+    public void setNumLvl(int numLvl) {
+        this.numLvl = numLvl;
     }
 }

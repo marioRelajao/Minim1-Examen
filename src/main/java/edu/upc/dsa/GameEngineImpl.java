@@ -1,24 +1,25 @@
 package edu.upc.dsa;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import edu.upc.dsa.models.Game;
+import edu.upc.dsa.models.Match;
 import edu.upc.dsa.models.User;
 import org.apache.log4j.Logger;
 
-
-import java.util.*;
-
-import static java.util.stream.Collectors.toList;
-
-public class GameEngineImpl implements GameEngine{
+public class GameEngineImpl implements GameEngine {
     private static GameEngine instance;
 
     protected Map<String, User> users;
-    protected List<Game> games;
+    private List<Game> games;
 
     final static Logger logger = Logger.getLogger(GameEngine.class);
 
     GameEngineImpl(){
-        this.users = new HashMap<>(); //Clave = id, valor es el usuario como tal
+        this.users = new HashMap<>(); //Clave=id, valor es el user como tal
         this.games = new ArrayList<>();
     }
 
@@ -28,130 +29,181 @@ public class GameEngineImpl implements GameEngine{
     }
 
 
+    @Override
+    public Game createGame(String idGame, String descr, int numLvl) {
+        Game g = getGame(idGame);
+        if(g==null){ //=null es que no lo hemos encontrado, asi que se puede crear
+            g = new Game(idGame,descr,numLvl);
+            games.add(g);
+            logger.info("Game " + idGame + "added");
+            return g;
+        }
+        logger.info("Game with the same id already created");
+        return null;
+    }
+
 
     @Override
-    public User addUserGame(String idUser, String idGame) {
-        logger.info("Trying to add User " + idUser + " to game " + idGame);
-        if(getUserbyId(idUser)!=null || getGamebyId(idGame)!=null){ //Si es != de null implica que he encontrado un user/game
-            User u = getUserbyId(idUser);
-            Game g = getGamebyId(idGame);
-            int res = u.addGame(g);
-            if(res==-1){
-                logger.info("Can't add game, user already in");
-                return null;
-            }
-            logger.info("Added "+ idGame + "to user" +idUser);
+    public Game startGame(String idGame, String idUser) {
+        Game g = getGame(idGame);
+        User u = getUser(idUser);
+        if(g==null || u==null){ //En este caso, o no existe el player o la partida
+            logger.info("Either game/player does not exist");
+            return null;
         }
-        logger.info("Either the game or the user doesn't exist");
+        if(u.getPlaying()==true){
+            logger.info("Player already in a game");
+            return null;
+        }
+        Match match = new Match(idUser,idGame, String.valueOf(java.time.LocalDate.now())); //Trobat a internet lo de la date
+        logger.info("Adding match to user "+ u.getIdUser());
+        this.users.get(idUser).addMatch(match);
+        return g;
+    }
+
+    private User getUser(String idUser) {
+        logger.info("Looking for user with id " + idUser);
+        if(this.users.get(idUser)==null){
+            logger.info("Player not found");
+            return null;
+        }
+        return this.users.get(idUser);
+    }
+
+    @Override
+    public int getActualLvl(String idUser) { //retornamos el lvl o -1 si cualquier otra cosa
+        Match m = getMatchUser(idUser);
+        User u = getUser(idUser);
+        if(m!=null || u!=null){ //Si existe el game y el user
+            logger.info("User "+u.getIdUser()+" is at lvl "+m.getActLvl());
+            int res = m.getActLvl();
+            return m.getActLvl();
+        }
+
+        return -1;
+    }
+
+    private Match getMatchUser(String idUser) {
+        User u = getUser(idUser);
+        logger.info("Looking for the last match of user "+idUser);
+        if(u.getPlaying()==true){ //Asumimos que el ultimo match añadido es el que esta jugando
+             Match m = u.getHistory().get(u.getHistory().size()-1);
+             logger.info("");
+             return m;
+        }
+        logger.info("Couldn't find a match");
         return null;
     }
 
     @Override
-    public User getUserbyId(String idUser) {
-        logger.info("Looking for User:" + idUser);
-        for(Map.Entry<String,User> entry : this.users.entrySet()){
-            if(entry.getValue().getId().equals(idUser)){
-                logger.info("Found user: " + entry.getValue().getName());
-                return entry.getValue();
-            }
-        }
-        logger.info("Not found :c");
+    public String getActualPoints(String idUser) {
         return null;
     }
 
     @Override
-    public int sizeUsers() {
-        int ret = this.users.size();
-        return ret;
+    public User nextLvl(String idUser, int points, String date) {
+        Match m = getMatchUser(idUser);
+        if(m!=null){
+            logger.info("User is at level" + m.getActLvl() + " of a total "+getGame(m.getIdGame()).getNumLvl() );
+            if(m.getActLvl()==getGame(m.getIdGame()).getNumLvl()){
+                logger.info("User is at the final level");
+                this.users.get(idUser).getHistory().get(m.getIdGame()).addPoints(100);
+                this.users.get(idUser).setPlaying(false);
+                logger.info("Set user playing to false");
+                return getUser(idUser);
+            }
+            Match newMatch = m;
+            newMatch.setActLvl(m.getActLvl()+1);
+            newMatch.setPoints(points);
+            newMatch.setDate(String.valueOf(java.time.LocalDate.now()));
+            getUser(idUser).addMatch(newMatch);
+            logger.info("User "+idUser+" advanced to next level");
+            return getUser(idUser);
+        }
+        return null;
     }
 
     @Override
-    public int sizeGames() {
-        int ret = this.games.size();
-        return ret;
+    public User endMatch(String idUser) {
+        Match m = getMatchUser(idUser);
+        if(m!=null){ //Si hay match
+            this.users.get(idUser).setPlaying(false);
+            logger.info("User " + idUser +" ended actual matcg");
+            return this.users.get(idUser);
+        }
+        return null;
     }
 
-    public Game getGamebyId(String idGame) {
-        logger.info("Looking for Game" + idGame);
+    @Override
+    public List<User> sortUsers(Game g) {
+        Game g1 = getGame(g.getIdGame());
+        List<Match> matches = new ArrayList<>();
+        for(Map.Entry<String,User> entry: this.users.entrySet()){
+            Match m = getMatch(g.getIdGame(), entry.getKey()); //El idUser en este caso corresponde al valor de Hash
+            if(m!=null){
+                matches.add(m);
+            }
+        }
+        if(matches.size()!=0){
+            matches.sort((Match m1, Match m2) -> Integer.compare(m2.getPoints(), m1.getPoints()));
+            List<User> sorted = new ArrayList<>();
+            for (Match match : matches){
+                sorted.add(this.users.get(match.getIdUser()));
+            }
+            return sorted;
+        }
+        return null;
+    }
+
+    private Match getMatch(String idGame, String idUser) {
+        List<Match> l = getMatches(idGame,idUser);
+        if(l.size()!=0){
+            return l.get(l.size()-1);
+        }
+        return null;
+    }
+
+    private List<Match> getMatches(String idGame, String idUser) {
+        logger.info("Trying to get a list of all matches from a game-user");
+        Game g = getGame(idGame);
+        if(g==null){
+            logger.info("Game does not exist");
+            return null;
+        }
+        User u = this.users.get(idUser);
+        if(u==null){
+            logger.info("User does not exist");
+        }
+        HashMap<String,Match> matches = u.getHistory();
+        List<Match> matchPlayed = new ArrayList<>();
+        for (Map.Entry<String,Match> entry: matches.entrySet()){
+            if(entry.getValue().getIdGame().equals(idGame)){ //Si esa entrada del hashmap corresponde al idGame
+                matchPlayed.add(entry.getValue());
+                logger.info("Added a match to de list, total "+ matchPlayed.size());
+            }
+        }
+        return matchPlayed;
+    }
+
+    @Override
+    public List<Match> matchUser(String idUser) {
+        return null;
+    }
+
+    @Override
+    public List<Match> userActivity(String idUser, String idGame) {
+        return null;
+    }
+
+    private Game getGame(String idGame) {
+        logger.info("Looking for game with id " + idGame);
         for(Game g: this.games){
-            if(g.getId().equals(idGame)){ //Si el game existe en mi lista de juegos
-                logger.info("Game " + idGame + "exists");
+            if(g.getIdGame().equals(idGame)){ //Si el game existe en mi lista de juegos
+                logger.info("Game found! " + g.getDesc());
                 return g;
             }
         }
-        logger.info("Not found :c");
+        logger.info("Game not found");
         return null;
     }
-
-    @Override
-    public Game startGame(Game game, String idUser) {
-        return null;
-    }
-
-    public String getlvlGame(String idGame){
-        for(Map.Entry<String,User> entry : this.users.entrySet()){
-            if(entry.getValue().getGamesPlayed().contains(getGamebyId(idGame))){
-                return getGamebyId(idGame).getId();
-            }
-        }
-        return null;
-    }
-
-    public int sizeGamesUser(User u){
-        int ret = u.getGamesPlayed().size();
-        logger.info("User "+u.getName()+ " has " +ret+ " games");
-        return ret;
-    }
-    @Override
-    public String levelUser(String idUser) {
-        User u = getUserbyId(idUser);
-        logger.info("Looking for level of user "+ idUser);
-        if(getUserbyId(idUser)==null || sizeGamesUser(getUserbyId(idUser))==0){ //o no existe o no tiene games
-            logger.info("Either user/game doesnt exist");
-            return null;
-        }
-        for(Map.Entry<String,User> entry : this.users.entrySet()){
-            if(entry.getValue().equals(u)){
-
-                return null;
-            }
-        }
-        logger.info("Here's the lvl bro");
-        return null;
-    }
-
-    @Override
-    public int actualPoints(String idUser) {
-        return 0;
-    }
-
-    @Override
-    public String nextLevel(String idUser, int points, String date) {
-        return null;
-    }
-
-    @Override
-    public Game addGame(Game g) {
-        logger.info("trying to add game to list");
-        if(getGamebyId(g.getId())==null){ //no game, lo añado
-            return g;
-        }
-        logger.info("Game not added");
-        return null;
-    }
-    @Override
-    public User addUser(User u) {
-        logger.info("trying to add user to list");
-        if(getUserbyId(u.getId())==null){ //no user, lo añado
-            return u;
-        }
-        logger.info("User not added");
-        return null;
-    }
-    @Override
-    public List<User> getAllUsers() {
-        List<User> list = this.users.values().stream().collect(toList());
-        return list;
-    }
-
 }

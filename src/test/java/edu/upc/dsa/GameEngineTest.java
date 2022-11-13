@@ -4,7 +4,7 @@ import org.apache.log4j.Logger;
 import org.junit.Before;
 
 public class GameEngineTest {
-    final static Logger logger = Logger.getLogger(GameEngineImpl.class);
+    final static Logger logger = Logger.getLogger(GameEngine.class);
     GameEngine gm;
 
     @Before

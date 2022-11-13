@@ -1,65 +1,47 @@
 package edu.upc.dsa.models;
 
-import java.util.LinkedList;
-import java.util.List;
-import java.util.logging.Logger;
+import java.util.HashMap;
 
 public class User {
-    String id;
-    String name;
-    int points;
-    List<Game> gamesPlayed;
+    String idUser;
+    HashMap<String,Match> history; //Historial de las partidas, clave sera el id de la partida, valor la partida
+    Boolean playing;
 
     public User(){};
 
-    public User(String id, String name) {
-        this.id = id;
-        this.name = name;
-        this.points = 50;
-        this.gamesPlayed = new LinkedList<>();
+    public User(String idUser) {
+        this.idUser = idUser;
+        this.history = new HashMap<>();
     }
 
-    //GETTERS SETTERS
+    //Getters setters
 
-    public String getId() {
-        return id;
+    public String getIdUser() {
+        return idUser;
     }
 
-    public String getName() {
-        return name;
+    public void setIdUser(String idUser) {
+        this.idUser = idUser;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public HashMap<String, Match> getHistory() {
+        return history;
     }
 
-    public void setId(String id) {
-        this.id = id;
+    public void setHistory(HashMap<String, Match> history) {
+        this.history = history;
     }
 
-    public int getPoints() {
-        return points;
+    public Boolean getPlaying() {
+        return playing;
     }
 
-    public void setPoints(int points) {
-        this.points = points;
+    public void setPlaying(Boolean playing) {
+        this.playing = playing;
     }
 
-    public List<Game> getGamesPlayed() {
-        return gamesPlayed;
-    }
-
-    public void setGamesPlayed(List<Game> gamesPlayed) {
-        this.gamesPlayed = gamesPlayed;
-    }
-
-    public int addGame(Game g){
-        for(Game g1: this.gamesPlayed){
-            if(g1.getId().equals(g.getId())){
-                return -1; //Significa que volem iniciar un game que ja tenim
-            }
-        }
-        this.gamesPlayed.add(g);
-        return 0;
+    public void addMatch(Match match) {
+        this.history.put(match.idMatch, match);
+        this.playing=true;
     }
 }
