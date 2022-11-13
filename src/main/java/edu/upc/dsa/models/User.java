@@ -11,6 +11,7 @@ public class User {
 
     public User(String idUser) {
         this.idUser = idUser;
+        this.playing = false;
         this.history = new HashMap<>();
     }
 

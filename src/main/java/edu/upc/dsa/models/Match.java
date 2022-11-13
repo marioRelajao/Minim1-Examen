@@ -6,7 +6,7 @@ public class Match {
     String idMatch;
     String idUser;
     String idGame;
-    int points;
+    Integer points;
     int actLvl;
     String date;
 
@@ -47,7 +47,7 @@ public class Match {
         this.idGame = idGame;
     }
 
-    public int getPoints() {
+    public Integer getPoints() {
         return points;
     }
 

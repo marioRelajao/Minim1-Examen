@@ -17,4 +17,10 @@ public interface GameEngine {
     public List<User> sortUsers(Game g);
     public List<Match> matchUser(String idUser);
     public List<Match> userActivity(String idUser, String idGame);
+
+    int sizeGames();
+
+    int sizeUsers();
+
+    public User addUser(String idUser);
 }

@@ -97,6 +97,11 @@ public class GameEngineImpl implements GameEngine {
 
     @Override
     public String getActualPoints(String idUser) {
+        Match m = getMatchUser(idUser);
+        if(m!=null){
+            logger.info("User has "+ m.getPoints());
+            return m.getPoints().toString();
+        }
         return null;
     }
 
@@ -192,6 +197,25 @@ public class GameEngineImpl implements GameEngine {
 
     @Override
     public List<Match> userActivity(String idUser, String idGame) {
+        return null;
+    }
+
+    @Override
+    public int sizeGames() {
+        return this.games.size();
+    }
+
+    @Override
+    public int sizeUsers() {
+        return this.users.size();
+    }
+
+    @Override
+    public User addUser(String idUser) {
+        if(getUser(idUser)==null){
+            logger.info("User does not exists, adding");
+            return getUser(idUser);
+        }
         return null;
     }
 
