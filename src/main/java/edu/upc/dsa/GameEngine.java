@@ -23,4 +23,6 @@ public interface GameEngine {
     int sizeUsers();
 
     public User addUser(String idUser);
+
+    public Game getGame(String idGame);
 }

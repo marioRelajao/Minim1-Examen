@@ -218,8 +218,8 @@ public class GameEngineImpl implements GameEngine {
         }
         return null;
     }
-
-    private Game getGame(String idGame) {
+    @Override
+    public Game getGame(String idGame) {
         logger.info("Looking for game with id " + idGame);
         for(Game g: this.games){
             if(g.getIdGame().equals(idGame)){ //Si el game existe en mi lista de juegos
