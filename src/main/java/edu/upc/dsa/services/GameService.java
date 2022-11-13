@@ -17,7 +17,6 @@ import edu.upc.dsa.GameEngineImpl;
 import edu.upc.dsa.models.Game;
 import edu.upc.dsa.models.User;
 import io.swagger.annotations.Api;
-import jdk.tools.jlink.internal.Platform;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -168,11 +167,19 @@ public class GameService {
     @ApiOperation(value = "Get player's mathc", notes = "")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "All good", response = Match.class, responseContainer="List"),
-            @ApiResponse(code = 404, message = "This player does not exist")
+            @ApiResponse(code = 404, message = "Smthing went wrong")
     })
     @Path("/player/{id}/matches")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getMatchesUser(@PathParam("id") String id) {
+        List<Match> matches = this.gm.matchUser(id);
+        if(matches.size()!=0){
+            GenericEntity<List<Match>> entity = new GenericEntity<List<Match>>(matches){};
 
+            return Response.status(200).entity(entity).build();
+        }
+        return Response.status(404).build();
     }
+
+
 }

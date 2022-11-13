@@ -10,6 +10,8 @@ import edu.upc.dsa.models.Match;
 import edu.upc.dsa.models.User;
 import org.apache.log4j.Logger;
 
+import static java.util.stream.Collectors.toList;
+
 public class GameEngineImpl implements GameEngine {
     private static GameEngine instance;
 
@@ -60,8 +62,8 @@ public class GameEngineImpl implements GameEngine {
         this.users.get(idUser).addMatch(match);
         return g;
     }
-
-    private User getUser(String idUser) {
+    @Override
+    public User getUser(String idUser) {
         logger.info("Looking for user with id " + idUser);
         if(this.users.get(idUser)==null){
             logger.info("Player not found");
@@ -83,7 +85,8 @@ public class GameEngineImpl implements GameEngine {
         return -1;
     }
 
-    private Match getMatchUser(String idUser) {
+    @Override
+    public Match getMatchUser(String idUser) {
         User u = getUser(idUser);
         logger.info("Looking for the last match of user "+idUser);
         if(u.getPlaying()==true){ //Asumimos que el ultimo match añadido es el que esta jugando
@@ -192,7 +195,8 @@ public class GameEngineImpl implements GameEngine {
 
     @Override
     public List<Match> matchUser(String idUser) {
-        return null;
+        List<Match> matches = getUser(idUser).getHistory().values().stream().collect(toList());
+        return matches;
     }
 
     @Override

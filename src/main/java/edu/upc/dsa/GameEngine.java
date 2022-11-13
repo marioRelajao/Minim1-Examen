@@ -10,7 +10,13 @@ public interface GameEngine {
     //Operaciones que se piden en la parte1
     public Game createGame(String id, String descr, int numLvl);
     public Game startGame(String idGame, String idUser);
+
+    public User getUser(String idUser);
+
     public int getActualLvl(String idUser);
+
+    public Match getMatchUser(String idUser);
+
     public String getActualPoints(String idUser);
     public User nextLvl(String idUser, int points, String date);
     public User endMatch(String idUser);
